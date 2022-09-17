@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.Events;
 
 public class Blinking : MonoBehaviour
 {
@@ -18,9 +19,16 @@ public class Blinking : MonoBehaviour
     bool isLerping;
     float startTimestamp;
 
+    public UnityEvent onEyesClosed;
+    public UnityEvent onEyesOpen;
 
     void Start() {
-        OpenEyes();
+        if(onEyesClosed == null) {
+            onEyesClosed = new UnityEvent();
+        }
+        if(onEyesOpen == null) {
+            onEyesOpen = new UnityEvent();
+        }
     }
 
 
@@ -72,10 +80,12 @@ public class Blinking : MonoBehaviour
     void CloseEyes() {
         eyesClosed = true;
         eyelidLerpTrigger = true;
+        onEyesClosed.Invoke();
     }
 
     void OpenEyes() {
         eyesClosed = false;
         eyelidLerpTrigger = true;
+        onEyesOpen.Invoke();
     }
 }
