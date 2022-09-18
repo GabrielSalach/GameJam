@@ -5,8 +5,10 @@ public class Fear : MonoBehaviour
 {
     [SerializeField] Slider FearGauge;
     [SerializeField] GameObject Ghost;
+    [SerializeField] float BlinkDamage = 0.01f;
+    [SerializeField] float GhostDamage = 0.1f;
     bool isBlinking;
-    int nbChasingGhost;
+    public int nbChasingGhost;
 
     public void StartBlink()
     {
@@ -40,12 +42,12 @@ public class Fear : MonoBehaviour
     {
         if (isBlinking)
         {
-            FearGauge.value += Time.deltaTime * 0.1f;
+            FearGauge.value += Time.deltaTime * BlinkDamage;
         }
-
-        if (nbChasingGhost > 0)
+        
+        if (!isBlinking && nbChasingGhost > 0)
         {
-            FearGauge.value += Time.deltaTime * 0.01f * nbChasingGhost;
+            FearGauge.value += Time.deltaTime * GhostDamage * nbChasingGhost;
         }
     }
 }

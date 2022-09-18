@@ -21,6 +21,7 @@ public class MonsterAI : MonoBehaviour
     float roamTimer = 0;
     Transform model;
     GameObject hurtBox;
+    bool isChasing = false;
 
     void Start() {
         agent = GetComponent<NavMeshAgent>();
@@ -36,12 +37,16 @@ public class MonsterAI : MonoBehaviour
     }
 
     void CheckDistance() {
-        if(Vector3.Distance(transform.position, player.position) <= aggroRange) {
+        float range = Vector3.Distance(transform.position, player.position);
+
+        if (!isChasing && range <= aggroRange) {
             stateMachine.SetBool("HasTarget", true);
             onPlayerAquired.Invoke();
-        } else {
+            isChasing = true;
+        } else if(isChasing && range > aggroRange){
             stateMachine.SetBool("HasTarget", false);
             onPlayerLost.Invoke();
+            isChasing = false;
         }
     }
 
