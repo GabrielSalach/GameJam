@@ -1,5 +1,7 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class EndGame : MonoBehaviour
@@ -27,13 +29,23 @@ public class EndGame : MonoBehaviour
         {
             ScreenPanel.SetActive(true);
             Message.text = "GAME OVER";
+            StartCoroutine(BackToMenu());
         }
 
         else if(isSaved)
         {
             ScreenPanel.SetActive(true);
             Message.text = "VICTORY";
+            StartCoroutine(BackToMenu());
         }
+    }
+
+    IEnumerator BackToMenu()
+    {
+        yield return new WaitForSeconds(5);
+
+        Cursor.lockState = CursorLockMode.Confined;
+        SceneManager.LoadScene("MainMenu", 0); 
     }
 
     public void OnTriggerEnter(Collider other)
