@@ -8,7 +8,7 @@ using UnityEngine.Events;
 public class MonsterAI : MonoBehaviour
 {
 
-    [SerializeField] Transform player;
+    public Transform player;
     [SerializeField] float aggroRange;
     [SerializeField] float floatSpeed;
     [SerializeField] float floatHeight;
