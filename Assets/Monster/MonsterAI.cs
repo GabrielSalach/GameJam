@@ -2,30 +2,79 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 
 public class MonsterAI : MonoBehaviour
 {
 
-    [SerializeField] Transform target;
+    [SerializeField] Transform player;
+    [SerializeField] float aggroRange;
+    [SerializeField] float floatSpeed;
+    [SerializeField] float floatHeight;
+
+    public UnityEvent onPlayerAquired;
+    public UnityEvent onPlayerLost;
 
     NavMeshAgent agent;
+    Animator stateMachine;
+    float roamTimer = 0;
+    Transform model;
+    GameObject hurtBox;
 
     void Start() {
         agent = GetComponent<NavMeshAgent>();
+        stateMachine = GetComponent<Animator>();
+        model = transform.Find("Model").transform;
+        if(onPlayerAquired == null) {
+            onPlayerAquired = new UnityEvent();
+        }
+        if(onPlayerLost == null) {
+            onPlayerLost = new UnityEvent();
+        }
+        hurtBox = transform.Find("HurtBox").gameObject;
+    }
+
+    void CheckDistance() {
+        if(Vector3.Distance(transform.position, player.position) <= aggroRange) {
+            stateMachine.SetBool("HasTarget", true);
+            onPlayerAquired.Invoke();
+        } else {
+            stateMachine.SetBool("HasTarget", false);
+            onPlayerLost.Invoke();
+        }
     }
 
     void Update() {
-        if(target != null) {
-            var lookPos = target.position - transform.position;
-            lookPos.y = 0;
-            var rotation = Quaternion.LookRotation(lookPos);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 10);
-        }
-        agent.SetDestination(target.position);
+        // Floating animation
+        model.localPosition = new Vector3(0, 2 + Mathf.Sin(Time.time * floatSpeed) * floatHeight, 0);
+        CheckDistance();
+        StartCoroutine(ghostMovement());
     }
 
-    public void toggleChase () {
-        agent.isStopped = !agent.isStopped;
+    IEnumerator ghostMovement() {
+        // Chasing behavior
+        if(stateMachine.GetBool("HasTarget") == true) {
+            agent.SetDestination(player.position);
+        }
+        yield return null;
+
+        // Roaming behavior
+        if(stateMachine.GetBool("HasTarget") == false) {
+            roamTimer -= Time.deltaTime;
+            if(roamTimer <= 0) {
+                Vector3 newDestination = new Vector3(Random.Range(0f, aggroRange), 0f, Random.Range(0f, aggroRange));
+                agent.SetDestination(newDestination);
+                roamTimer = Random.Range(3f, 5f);
+            }
+        }
+        yield return null;
+    }
+
+    // AggroRange debug
+    void OnDrawGizmosSelected() {
+        // Draw a yellow sphere at the transform's position
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, aggroRange);
     }
 }
