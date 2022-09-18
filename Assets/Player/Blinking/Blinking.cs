@@ -29,6 +29,10 @@ public class Blinking : MonoBehaviour
         if(onEyesOpen == null) {
             onEyesOpen = new UnityEvent();
         }
+
+        Vector2 canvasSize = topEyelid.transform.parent.parent.parent.GetComponent<RectTransform>().sizeDelta;
+        topEyelid.GetComponent<RectTransform>().sizeDelta = new Vector2(canvasSize.x, canvasSize.y / 2);
+        bottomEyelid.GetComponent<RectTransform>().sizeDelta = new Vector2(canvasSize.x, canvasSize.y / 2);
     }
 
 
